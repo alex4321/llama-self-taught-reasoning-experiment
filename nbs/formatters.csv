@@ -1,0 +1,114 @@
+formatter,text
+bbh-boolean_expressions,USER: Calculate the following expression {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-boolean_expressions-no-cot,USER: Calculate the following expression {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-boolean_expressions-cot,USER: Calculate the following expression {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-causal_judgement,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-causal_judgement-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-causal_judgement-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-date_understanding,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-date_understanding-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-date_understanding-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-disambiguation_qa,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-disambiguation_qa-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-disambiguation_qa-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-dyck_languages,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-dyck_languages-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-dyck_languages-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-formal_fallacies,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-formal_fallacies-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-formal_fallacies-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s> 
+bbh-geometric_shapes,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-geometric_shapes-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-geometric_shapes-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s> 
+bbh-hyperbaton,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-hyperbaton-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-hyperbaton-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-logical_deduction_five_objects,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-logical_deduction_five_objects-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-logical_deduction_five_objects-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-logical_deduction_seven_objects,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-logical_deduction_seven_objects-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-logical_deduction_seven_objects-no-cot,USER: {question}. Give an immediate answer <s> ASSISTANT: {target} <s>
+bbh-logical_deduction_three_objects,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-logical_deduction_three_objects-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-logical_deduction_three_objects-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-movie_recommendation,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-movie_recommendation-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-movie_recommendation-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-multistep_arithmetic_two,"USER: I have the following math expression, calculate it `{question}`. <s> ASSISTANT: Let's think step by step. "
+bbh-multistep_arithmetic_two-cot,"USER: I have the following math expression, calculate it `{question}`. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>"
+bbh-multistep_arithmetic_two-no-cot,"USER: I have the following math expression, calculate it `{question}`. Give an immediate answer. <s> ASSISTANT: {target} <s>"
+bbh-navigate,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-navigate-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-navigate-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-object_counting,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-object_counting-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-object_counting-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-penguins_in_a_table,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-penguins_in_a_table-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-penguins_in_a_table-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-reasoning_about_colored_objects,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-reasoning_about_colored_objects-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-reasoning_about_colored_objects-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-ruin_names,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-ruin_names-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-ruin_names-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-salient_translation_error_detection,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-salient_translation_error_detection-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-salient_translation_error_detection-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-snarks,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-snarks-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-snarks-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-sports_understanding,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-sports_understanding-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-sports_understanding-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-temporal_sequences,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-temporal_sequences-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-temporal_sequences-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-tracking_shuffled_objects_five_objects,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-tracking_shuffled_objects_five_objects-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-tracking_shuffled_objects_five_objects-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-tracking_shuffled_objects_seven_objects,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-tracking_shuffled_objects_seven_objects-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-tracking_shuffled_objects_seven_objects-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-tracking_shuffled_objects_three_objects,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-tracking_shuffled_objects_three_objects-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-tracking_shuffled_objects_three_objects-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-web_of_lies,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-web_of_lies-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-web_of_lies-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+bbh-word_sorting,USER: {question}. <s> ASSISTANT: Let's think step by step. 
+bbh-word_sorting-cot,USER: {question}. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>
+bbh-word_sorting-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s>
+gsm8k,USER: {question}. <s> ASSISTANT: Let's think step by step. {chain_of_thoughts} 
+gsm8k-cot,USER: {question}. <s> ASSISTANT: Let's think step by step. {chain_of_thoughts}  <s> ASSISTANT: {target} <s>
+gsm8k-no-cot,USER: {question}. Give an immediate answer. <s> ASSISTANT: {target} <s> 
+humaneval,"USER: We have the following code ```
+{question}
+``` and tests ```{test}```, help me write main code. <s> ASSISTANT: Let's think step by step. "
+humaneval-cot,"USER: We have the following code ```
+{question}
+``` and tests ```{test}```, help me write main code. <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: ```
+{target}
+``` <s>"
+humaneval-no-cot,"USER: We have the following code ```
+{question}
+``` and tests ```{test}```, help me write main code. Give an immediate answer. <s> ASSISTANT: ```
+{target}
+``` <s>"
+mmlu,"USER: {question}
+A: {A}
+B: {B}
+C: {C}
+D: {D} <s> ASSISTANT: Let's think step by step. "
+mmlu-cot,"USER: {question}
+A: {A}
+B: {B}
+C: {C}
+D: {D} <s> ASSISTANT: Let's think step by step.  {chain_of_thoughts} <s> ASSISTANT: {target} <s>"
+mmlu-no-cot,"USER: {question}
+A: {A}
+B: {B}
+C: {C}
+D: {D}
+Give an immediate answer. <s> ASSISTANT: {target} <s>"
