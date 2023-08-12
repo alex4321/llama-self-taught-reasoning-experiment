@@ -1,0 +1,2498 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>llama-self-taught-reasoner - Preparing datasets</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="llama-self-taught-reasoner - Preparing datasets">
+<meta property="og:description" content="">
+<meta property="og:site-name" content="llama-self-taught-reasoner">
+<meta name="twitter:title" content="llama-self-taught-reasoner - Preparing datasets">
+<meta name="twitter:description" content="">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">llama-self-taught-reasoner</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools ms-auto">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./prepare_datasets.html">Preparing datasets</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">llama-self-taught-reasoner</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./core.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">core</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./prepare_datasets.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Preparing datasets</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_train_chains_of_thoughts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reading data</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#mmlu" id="toc-mmlu" class="nav-link active" data-scroll-target="#mmlu">MMLU</a></li>
+  <li><a href="#gsm8k" id="toc-gsm8k" class="nav-link" data-scroll-target="#gsm8k">GSM8K</a></li>
+  <li><a href="#bbh" id="toc-bbh" class="nav-link" data-scroll-target="#bbh">BBH</a></li>
+  <li><a href="#humaneval" id="toc-humaneval" class="nav-link" data-scroll-target="#humaneval">HumanEval</a></li>
+  <li><a href="#join" id="toc-join" class="nav-link" data-scroll-target="#join">Join</a></li>
+  <li><a href="#rearrange-splits" id="toc-rearrange-splits" class="nav-link" data-scroll-target="#rearrange-splits">Rearrange splits</a></li>
+  <li><a href="#subsampling" id="toc-subsampling" class="nav-link" data-scroll-target="#subsampling">Subsampling</a></li>
+  <li><a href="#saving-dataset-and-llm-prompt-templates" id="toc-saving-dataset-and-llm-prompt-templates" class="nav-link" data-scroll-target="#saving-dataset-and-llm-prompt-templates">Saving dataset and LLM prompt templates</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/alex4321/llama-self-taught-reasoner/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Preparing datasets</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datasets <span class="im">import</span> load_dataset</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>C:\Users\alex4321\anaconda3\envs\llama\Lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm</code></pre>
+</div>
+</div>
+<section id="mmlu" class="level2">
+<h2 class="anchored" data-anchor-id="mmlu">MMLU</h2>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_mmlu_subset(subset):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"LOADING MMLU SUBSET </span><span class="sc">{</span>subset<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> load_dataset(<span class="st">"lukaemon/mmlu"</span>, subset)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> []</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> split <span class="kw">in</span> [<span class="st">"train"</span>, <span class="st">"test"</span>, <span class="st">"validation"</span>]:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        df_split <span class="op">=</span> pd.DataFrame(dataset[split])</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        df_split[<span class="st">"split"</span>] <span class="op">=</span> split</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        df_split[<span class="st">"subset"</span>] <span class="op">=</span> <span class="ss">f"mmlu-</span><span class="sc">{</span>subset<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        results.append(df_split)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> pd.concat(results).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"dataset"</span>] <span class="op">=</span> <span class="st">"mmlu"</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"formatter"</span>] <span class="op">=</span> <span class="st">"mmlu"</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"question"</span>] <span class="op">=</span> df[<span class="st">"input"</span>]</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"variables"</span>] <span class="op">=</span> df.<span class="bu">apply</span>(</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">lambda</span> row: {</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"A"</span>: row[<span class="st">"A"</span>],</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">"B"</span>: row[<span class="st">"B"</span>],</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">"C"</span>: row[<span class="st">"C"</span>],</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">"D"</span>: row[<span class="st">"D"</span>],</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        axis<span class="op">=</span><span class="dv">1</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"variables"</span>] <span class="op">=</span> df[<span class="st">"variables"</span>].<span class="bu">apply</span>(json.dumps)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> df[[<span class="st">"question"</span>, <span class="st">"variables"</span>, <span class="st">"target"</span>, <span class="st">"dataset"</span>, <span class="st">"formatter"</span>, <span class="st">"subset"</span>, <span class="st">"split"</span>]]</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_mmlu <span class="op">=</span> [</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    load_mmlu_subset(config_name)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> config_name <span class="kw">in</span> [<span class="st">'high_school_european_history'</span>, <span class="st">'business_ethics'</span>, <span class="st">'clinical_knowledge'</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'medical_genetics'</span>, <span class="st">'high_school_us_history'</span>, <span class="st">'high_school_physics'</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'high_school_world_history'</span>, <span class="st">'virology'</span>, <span class="st">'high_school_microeconomics'</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'econometrics'</span>, <span class="st">'college_computer_science'</span>, <span class="st">'high_school_biology'</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'abstract_algebra'</span>, <span class="st">'professional_accounting'</span>, <span class="st">'philosophy'</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'professional_medicine'</span>, <span class="st">'nutrition'</span>, <span class="st">'global_facts'</span>, <span class="st">'machine_learning'</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'security_studies'</span>, <span class="st">'public_relations'</span>, <span class="st">'professional_psychology'</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'prehistory'</span>, <span class="st">'anatomy'</span>, <span class="st">'human_sexuality'</span>, <span class="st">'college_medicine'</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'high_school_government_and_politics'</span>, <span class="st">'college_chemistry'</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'logical_fallacies'</span>, <span class="st">'high_school_geography'</span>, <span class="st">'elementary_mathematics'</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'human_aging'</span>, <span class="st">'college_mathematics'</span>, <span class="st">'high_school_psychology'</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'formal_logic'</span>, <span class="st">'high_school_statistics'</span>, <span class="st">'international_law'</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'high_school_mathematics'</span>, <span class="st">'high_school_computer_science'</span>, <span class="st">'conceptual_physics'</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'miscellaneous'</span>, <span class="st">'high_school_chemistry'</span>, <span class="st">'marketing'</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'professional_law'</span>, <span class="st">'management'</span>, <span class="st">'college_physics'</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'jurisprudence'</span>, <span class="st">'world_religions'</span>, <span class="st">'sociology'</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'us_foreign_policy'</span>, <span class="st">'high_school_macroeconomics'</span>, <span class="st">'computer_security'</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'moral_scenarios'</span>, <span class="st">'moral_disputes'</span>, <span class="st">'electrical_engineering'</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'astronomy'</span>, <span class="st">'college_biology'</span>]</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>df_mmlu <span class="op">=</span> pd.concat(df_mmlu).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>df_mmlu.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>LOADING MMLU SUBSET high_school_european_history
+LOADING MMLU SUBSET business_ethics
+LOADING MMLU SUBSET clinical_knowledge
+LOADING MMLU SUBSET medical_genetics
+LOADING MMLU SUBSET high_school_us_history
+LOADING MMLU SUBSET high_school_physics
+LOADING MMLU SUBSET high_school_world_history
+LOADING MMLU SUBSET virology
+LOADING MMLU SUBSET high_school_microeconomics
+LOADING MMLU SUBSET econometrics
+LOADING MMLU SUBSET college_computer_science
+LOADING MMLU SUBSET high_school_biology
+LOADING MMLU SUBSET abstract_algebra
+LOADING MMLU SUBSET professional_accounting
+LOADING MMLU SUBSET philosophy
+LOADING MMLU SUBSET professional_medicine
+LOADING MMLU SUBSET nutrition
+LOADING MMLU SUBSET global_facts
+LOADING MMLU SUBSET machine_learning
+LOADING MMLU SUBSET security_studies
+LOADING MMLU SUBSET public_relations
+LOADING MMLU SUBSET professional_psychology
+LOADING MMLU SUBSET prehistory
+LOADING MMLU SUBSET anatomy
+LOADING MMLU SUBSET human_sexuality
+LOADING MMLU SUBSET college_medicine
+LOADING MMLU SUBSET high_school_government_and_politics
+LOADING MMLU SUBSET college_chemistry
+LOADING MMLU SUBSET logical_fallacies
+LOADING MMLU SUBSET high_school_geography
+LOADING MMLU SUBSET elementary_mathematics
+LOADING MMLU SUBSET human_aging
+LOADING MMLU SUBSET college_mathematics
+LOADING MMLU SUBSET high_school_psychology
+LOADING MMLU SUBSET formal_logic
+LOADING MMLU SUBSET high_school_statistics
+LOADING MMLU SUBSET international_law
+LOADING MMLU SUBSET high_school_mathematics
+LOADING MMLU SUBSET high_school_computer_science
+LOADING MMLU SUBSET conceptual_physics
+LOADING MMLU SUBSET miscellaneous
+LOADING MMLU SUBSET high_school_chemistry
+LOADING MMLU SUBSET marketing
+LOADING MMLU SUBSET professional_law
+LOADING MMLU SUBSET management
+LOADING MMLU SUBSET college_physics
+LOADING MMLU SUBSET jurisprudence
+LOADING MMLU SUBSET world_religions
+LOADING MMLU SUBSET sociology
+LOADING MMLU SUBSET us_foreign_policy
+LOADING MMLU SUBSET high_school_macroeconomics
+LOADING MMLU SUBSET computer_security
+LOADING MMLU SUBSET moral_scenarios
+LOADING MMLU SUBSET moral_disputes
+LOADING MMLU SUBSET electrical_engineering
+LOADING MMLU SUBSET astronomy
+LOADING MMLU SUBSET college_biology</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">question</th>
+<th data-quarto-table-cell-role="th">variables</th>
+<th data-quarto-table-cell-role="th">target</th>
+<th data-quarto-table-cell-role="th">dataset</th>
+<th data-quarto-table-cell-role="th">formatter</th>
+<th data-quarto-table-cell-role="th">subset</th>
+<th data-quarto-table-cell-role="th">split</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "The ideas of personal liberty and natio...</td>
+<td>A</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "Capitalist", "B": "Scientific", "C": "C...</td>
+<td>C</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>train</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "They served as a catalyst for the growt...</td>
+<td>A</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "give the English king a new position of...</td>
+<td>D</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>train</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "In ancient Rome, religious worship was ...</td>
+<td>A</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>test</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="gsm8k" class="level2">
+<h2 class="anchored" data-anchor-id="gsm8k">GSM8K</h2>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dataset_gsm8k <span class="op">=</span> load_dataset(<span class="st">"gsm8k"</span>, <span class="st">"main"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>dataset_gsm8k</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>DatasetDict({
+    train: Dataset({
+        features: ['question', 'answer'],
+        num_rows: 7473
+    })
+    test: Dataset({
+        features: ['question', 'answer'],
+        num_rows: 1319
+    })
+})</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df_gsm8k <span class="op">=</span> pd.concat([</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    pd.DataFrame(dataset_gsm8k[split]).assign(split<span class="op">=</span>split)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> split <span class="kw">in</span> [<span class="st">"train"</span>, <span class="st">"test"</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>df_gsm8k[<span class="st">"dataset"</span>] <span class="op">=</span> <span class="st">"gsm8k"</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>df_gsm8k[<span class="st">"formatter"</span>] <span class="op">=</span> <span class="st">"gsm8k"</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>df_gsm8k[<span class="st">"subset"</span>] <span class="op">=</span> <span class="st">"gsm8k"</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>df_gsm8k[<span class="st">"variables"</span>] <span class="op">=</span> df_gsm8k[<span class="st">"answer"</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> answer: answer.split(<span class="st">"####"</span>)[<span class="dv">0</span>].strip())<span class="op">\</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">apply</span>(<span class="kw">lambda</span> cot: {<span class="st">"chain_of_thoughts"</span>: cot}) <span class="op">\</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">apply</span>(json.dumps)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>df_gsm8k[<span class="st">"target"</span>] <span class="op">=</span> df_gsm8k[<span class="st">"answer"</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> answer: answer.split(<span class="st">"####"</span>)[<span class="dv">1</span>].strip())</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>df_gsm8k <span class="op">=</span> df_gsm8k[[<span class="st">"question"</span>, <span class="st">"variables"</span>, <span class="st">"target"</span>, <span class="st">"dataset"</span>, <span class="st">"formatter"</span>, <span class="st">"subset"</span>, <span class="st">"split"</span>]]</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>df_gsm8k.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">question</th>
+<th data-quarto-table-cell-role="th">variables</th>
+<th data-quarto-table-cell-role="th">target</th>
+<th data-quarto-table-cell-role="th">dataset</th>
+<th data-quarto-table-cell-role="th">formatter</th>
+<th data-quarto-table-cell-role="th">subset</th>
+<th data-quarto-table-cell-role="th">split</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Natalia sold clips to 48 of her friends in Apr...</td>
+<td>{"chain_of_thoughts": "Natalia sold 48/2 = &lt;&lt;4...</td>
+<td>72</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Weng earns $12 an hour for babysitting. Yester...</td>
+<td>{"chain_of_thoughts": "Weng earns 12/60 = $&lt;&lt;1...</td>
+<td>10</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>train</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Betty is saving money for a new wallet which c...</td>
+<td>{"chain_of_thoughts": "In the beginning, Betty...</td>
+<td>5</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Julie is reading a 120-page book. Yesterday, s...</td>
+<td>{"chain_of_thoughts": "Maila read 12 x 2 = &lt;&lt;1...</td>
+<td>42</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>train</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>James writes a 3-page letter to 2 different fr...</td>
+<td>{"chain_of_thoughts": "He writes each friend 3...</td>
+<td>624</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>gsm8k</td>
+<td>train</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="bbh" class="level2">
+<h2 class="anchored" data-anchor-id="bbh">BBH</h2>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> load_bbh_subset(subset):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"LOAD BBH </span><span class="sc">{</span>subset<span class="sc">}</span><span class="ss"> SUBSET"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    dataset <span class="op">=</span> load_dataset(<span class="st">"lukaemon/bbh"</span>, subset)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> pd.DataFrame(dataset[<span class="st">"test"</span>])</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"question"</span>] <span class="op">=</span> df[<span class="st">"input"</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"variables"</span>] <span class="op">=</span> <span class="st">"</span><span class="sc">{}</span><span class="st">"</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"dataset"</span>] <span class="op">=</span> <span class="st">"bbh"</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"formatter"</span>] <span class="op">=</span> <span class="ss">f"bbh-</span><span class="sc">{</span>subset<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"subset"</span>] <span class="op">=</span> <span class="ss">f"bbh-</span><span class="sc">{</span>subset<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">"split"</span>] <span class="op">=</span> <span class="st">"test"</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> df[[<span class="st">"question"</span>, <span class="st">"variables"</span>, <span class="st">"target"</span>, <span class="st">"dataset"</span>, <span class="st">"formatter"</span>, <span class="st">"subset"</span>, <span class="st">"split"</span>]]</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_bbh <span class="op">=</span> [</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    load_bbh_subset(subset)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> subset <span class="kw">in</span> [<span class="st">'boolean_expressions'</span>, <span class="st">'causal_judgement'</span>, <span class="st">'date_understanding'</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'disambiguation_qa'</span>, <span class="st">'dyck_languages'</span>, <span class="st">'formal_fallacies'</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'geometric_shapes'</span>, <span class="st">'hyperbaton'</span>, <span class="st">'logical_deduction_five_objects'</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'logical_deduction_seven_objects'</span>, <span class="st">'logical_deduction_three_objects'</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'movie_recommendation'</span>, <span class="st">'multistep_arithmetic_two'</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'navigate'</span>, <span class="st">'object_counting'</span>, <span class="st">'penguins_in_a_table'</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'reasoning_about_colored_objects'</span>, <span class="st">'ruin_names'</span>, <span class="st">'salient_translation_error_detection'</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'snarks'</span>, <span class="st">'sports_understanding'</span>, <span class="st">'temporal_sequences'</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'tracking_shuffled_objects_five_objects'</span>, <span class="st">'tracking_shuffled_objects_seven_objects'</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>                   <span class="st">'tracking_shuffled_objects_three_objects'</span>, <span class="st">'web_of_lies'</span>, <span class="st">'word_sorting'</span>]</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>df_bbh <span class="op">=</span> pd.concat(df_bbh).reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>df_bbh.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>LOAD BBH boolean_expressions SUBSET
+LOAD BBH causal_judgement SUBSET
+LOAD BBH date_understanding SUBSET
+LOAD BBH disambiguation_qa SUBSET
+LOAD BBH dyck_languages SUBSET
+LOAD BBH formal_fallacies SUBSET
+LOAD BBH geometric_shapes SUBSET
+LOAD BBH hyperbaton SUBSET
+LOAD BBH logical_deduction_five_objects SUBSET
+LOAD BBH logical_deduction_seven_objects SUBSET
+LOAD BBH logical_deduction_three_objects SUBSET
+LOAD BBH movie_recommendation SUBSET
+LOAD BBH multistep_arithmetic_two SUBSET
+LOAD BBH navigate SUBSET
+LOAD BBH object_counting SUBSET
+LOAD BBH penguins_in_a_table SUBSET
+LOAD BBH reasoning_about_colored_objects SUBSET
+LOAD BBH ruin_names SUBSET
+LOAD BBH salient_translation_error_detection SUBSET
+LOAD BBH snarks SUBSET
+LOAD BBH sports_understanding SUBSET
+LOAD BBH temporal_sequences SUBSET
+LOAD BBH tracking_shuffled_objects_five_objects SUBSET
+LOAD BBH tracking_shuffled_objects_seven_objects SUBSET
+LOAD BBH tracking_shuffled_objects_three_objects SUBSET
+LOAD BBH web_of_lies SUBSET
+LOAD BBH word_sorting SUBSET</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">question</th>
+<th data-quarto-table-cell-role="th">variables</th>
+<th data-quarto-table-cell-role="th">target</th>
+<th data-quarto-table-cell-role="th">dataset</th>
+<th data-quarto-table-cell-role="th">formatter</th>
+<th data-quarto-table-cell-role="th">subset</th>
+<th data-quarto-table-cell-role="th">split</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>not ( True ) and ( True ) is</td>
+<td>{}</td>
+<td>False</td>
+<td>bbh</td>
+<td>bbh-boolean_expressions</td>
+<td>bbh-boolean_expressions</td>
+<td>test</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>True and not not ( not False ) is</td>
+<td>{}</td>
+<td>True</td>
+<td>bbh</td>
+<td>bbh-boolean_expressions</td>
+<td>bbh-boolean_expressions</td>
+<td>test</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>not True or False or ( False ) is</td>
+<td>{}</td>
+<td>False</td>
+<td>bbh</td>
+<td>bbh-boolean_expressions</td>
+<td>bbh-boolean_expressions</td>
+<td>test</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>False or not ( True ) and False is</td>
+<td>{}</td>
+<td>False</td>
+<td>bbh</td>
+<td>bbh-boolean_expressions</td>
+<td>bbh-boolean_expressions</td>
+<td>test</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>True or not False and True and False is</td>
+<td>{}</td>
+<td>True</td>
+<td>bbh</td>
+<td>bbh-boolean_expressions</td>
+<td>bbh-boolean_expressions</td>
+<td>test</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="humaneval" class="level2">
+<h2 class="anchored" data-anchor-id="humaneval">HumanEval</h2>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>dataset_humaneval <span class="op">=</span> load_dataset(<span class="st">"openai_humaneval"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>dataset_humaneval</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>DatasetDict({
+    test: Dataset({
+        features: ['task_id', 'prompt', 'canonical_solution', 'test', 'entry_point'],
+        num_rows: 164
+    })
+})</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df_humaneval <span class="op">=</span> pd.DataFrame(dataset_humaneval[<span class="st">"test"</span>])</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df_humaneval[<span class="st">"question"</span>] <span class="op">=</span> df_humaneval[<span class="st">"prompt"</span>]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>df_humaneval[<span class="st">"target"</span>] <span class="op">=</span> df_humaneval[<span class="st">"canonical_solution"</span>]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>df_humaneval[<span class="st">"variables"</span>] <span class="op">=</span> df_humaneval[<span class="st">"test"</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> val: {<span class="st">"test"</span>: val})<span class="op">\</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">apply</span>(json.dumps)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>df_humaneval[<span class="st">"dataset"</span>] <span class="op">=</span> <span class="st">"humaneval"</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>df_humaneval[<span class="st">"formatter"</span>] <span class="op">=</span> <span class="st">"humaneval"</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>df_humaneval[<span class="st">"subset"</span>] <span class="op">=</span> <span class="st">"main"</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>df_humaneval[<span class="st">"split"</span>] <span class="op">=</span> <span class="st">"test"</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>df_humaneval <span class="op">=</span> df_humaneval[[<span class="st">"question"</span>, <span class="st">"variables"</span>, <span class="st">"target"</span>, <span class="st">"dataset"</span>, <span class="st">"formatter"</span>, <span class="st">"subset"</span>, <span class="st">"split"</span>]]</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>df_humaneval.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">question</th>
+<th data-quarto-table-cell-role="th">variables</th>
+<th data-quarto-table-cell-role="th">target</th>
+<th data-quarto-table-cell-role="th">dataset</th>
+<th data-quarto-table-cell-role="th">formatter</th>
+<th data-quarto-table-cell-role="th">subset</th>
+<th data-quarto-table-cell-role="th">split</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>from typing import List\n\n\ndef has_close_ele...</td>
+<td>{"test": "\n\nMETADATA = {\n 'author': 'jt'...</td>
+<td>for idx, elem in enumerate(numbers):\n ...</td>
+<td>humaneval</td>
+<td>humaneval</td>
+<td>main</td>
+<td>test</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>from typing import List\n\n\ndef separate_pare...</td>
+<td>{"test": "\n\nMETADATA = {\n 'author': 'jt'...</td>
+<td>result = []\n current_string = []\n ...</td>
+<td>humaneval</td>
+<td>humaneval</td>
+<td>main</td>
+<td>test</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>\n\ndef truncate_number(number: float) -&gt; floa...</td>
+<td>{"test": "\n\nMETADATA = {\n 'author': 'jt'...</td>
+<td>return number % 1.0\n</td>
+<td>humaneval</td>
+<td>humaneval</td>
+<td>main</td>
+<td>test</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>from typing import List\n\n\ndef below_zero(op...</td>
+<td>{"test": "\n\nMETADATA = {\n 'author': 'jt'...</td>
+<td>balance = 0\n\n for op in operations:\n...</td>
+<td>humaneval</td>
+<td>humaneval</td>
+<td>main</td>
+<td>test</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>from typing import List\n\n\ndef mean_absolute...</td>
+<td>{"test": "\n\nMETADATA = {\n 'author': 'jt'...</td>
+<td>mean = sum(numbers) / len(numbers)\n re...</td>
+<td>humaneval</td>
+<td>humaneval</td>
+<td>main</td>
+<td>test</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="join" class="level2">
+<h2 class="anchored" data-anchor-id="join">Join</h2>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.concat([df_mmlu, df_gsm8k, df_bbh, df_humaneval])<span class="op">\</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    .reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">question</th>
+<th data-quarto-table-cell-role="th">variables</th>
+<th data-quarto-table-cell-role="th">target</th>
+<th data-quarto-table-cell-role="th">dataset</th>
+<th data-quarto-table-cell-role="th">formatter</th>
+<th data-quarto-table-cell-role="th">subset</th>
+<th data-quarto-table-cell-role="th">split</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "The ideas of personal liberty and natio...</td>
+<td>A</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "Capitalist", "B": "Scientific", "C": "C...</td>
+<td>C</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>train</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "They served as a catalyst for the growt...</td>
+<td>A</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "give the English king a new position of...</td>
+<td>D</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>train</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>This question refers to the following informat...</td>
+<td>{"A": "In ancient Rome, religious worship was ...</td>
+<td>A</td>
+<td>mmlu</td>
+<td>mmlu</td>
+<td>mmlu-high_school_european_history</td>
+<td>test</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="rearrange-splits" class="level2">
+<h2 class="anchored" data-anchor-id="rearrange-splits">Rearrange splits</h2>
+<p>Some datasets have only test splits. That’s fine but we want to do some train-validation-test processing.</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>REARRANGE_RANDOM_STATE <span class="op">=</span> <span class="dv">42</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df.groupby([<span class="st">"dataset"</span>, <span class="st">"split"</span>]).count()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">question</th>
+<th data-quarto-table-cell-role="th">variables</th>
+<th data-quarto-table-cell-role="th">target</th>
+<th data-quarto-table-cell-role="th">formatter</th>
+<th data-quarto-table-cell-role="th">subset</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">dataset</th>
+<th data-quarto-table-cell-role="th">split</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">bbh</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>6511</td>
+<td>6511</td>
+<td>6511</td>
+<td>6511</td>
+<td>6511</td>
+</tr>
+<tr class="even">
+<td rowspan="2" data-quarto-table-cell-role="th" data-valign="top">gsm8k</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>1319</td>
+<td>1319</td>
+<td>1319</td>
+<td>1319</td>
+<td>1319</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">train</td>
+<td>7473</td>
+<td>7473</td>
+<td>7473</td>
+<td>7473</td>
+<td>7473</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">humaneval</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>164</td>
+<td>164</td>
+<td>164</td>
+<td>164</td>
+<td>164</td>
+</tr>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">mmlu</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>13985</td>
+<td>13985</td>
+<td>13985</td>
+<td>13985</td>
+<td>13985</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">train</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>1474</td>
+<td>1474</td>
+<td>1474</td>
+<td>1474</td>
+<td>1474</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rearrange_split(df, dataset, rearranging, random_state):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    masks <span class="op">=</span> {}</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    counts <span class="op">=</span> {}</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> source_split <span class="kw">in</span> rearranging:</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>        masks[source_split] <span class="op">=</span> (df[<span class="st">"dataset"</span>] <span class="op">==</span> dataset) <span class="op">&amp;</span> (df[<span class="st">"split"</span>] <span class="op">==</span> source_split)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        counts[source_split] <span class="op">=</span> masks[source_split].<span class="bu">sum</span>()</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    random.seed(random_state)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> source_split, dst_splits <span class="kw">in</span> rearranging.items():</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        source_mask <span class="op">=</span> masks[source_split]</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        source_count <span class="op">=</span> counts[source_split]</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>        new_splits <span class="op">=</span> <span class="bu">dict</span>(dst_splits)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>        new_splits[source_split] <span class="op">=</span> <span class="fl">1.0</span> <span class="op">-</span> <span class="bu">sum</span>(dst_splits.values())</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        new_split_names <span class="op">=</span> <span class="bu">sorted</span>(new_splits.keys())</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>        new_split_probas <span class="op">=</span> [new_splits[name] <span class="cf">for</span> name <span class="kw">in</span> new_split_names]</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>        new_split_choices <span class="op">=</span> [</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>            random.choices(</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>                new_split_names,</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>                weights<span class="op">=</span>new_split_probas,</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>                k<span class="op">=</span><span class="dv">1</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>            )[<span class="dv">0</span>]</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(source_count)</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>        df.loc[source_mask, <span class="st">"split"</span>] <span class="op">=</span> new_split_choices</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> rearrange_split(df, <span class="st">"bbh"</span>, {<span class="st">"test"</span>: {<span class="st">"train"</span>: <span class="fl">0.33</span>, <span class="st">"validation"</span>: <span class="fl">0.33</span>}}, REARRANGE_RANDOM_STATE)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> rearrange_split(df, <span class="st">"gsm8k"</span>, {<span class="st">"train"</span>: {<span class="st">"validation"</span>: <span class="fl">0.5</span>}}, REARRANGE_RANDOM_STATE)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> rearrange_split(df, <span class="st">"humaneval"</span>, {<span class="st">"test"</span>: {<span class="st">"train"</span>: <span class="fl">0.33</span>, <span class="st">"validation"</span>: <span class="fl">0.33</span>}}, REARRANGE_RANDOM_STATE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df.groupby([<span class="st">"dataset"</span>, <span class="st">"split"</span>]).count()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">question</th>
+<th data-quarto-table-cell-role="th">variables</th>
+<th data-quarto-table-cell-role="th">target</th>
+<th data-quarto-table-cell-role="th">formatter</th>
+<th data-quarto-table-cell-role="th">subset</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">dataset</th>
+<th data-quarto-table-cell-role="th">split</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">bbh</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>2204</td>
+<td>2204</td>
+<td>2204</td>
+<td>2204</td>
+<td>2204</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">train</td>
+<td>2147</td>
+<td>2147</td>
+<td>2147</td>
+<td>2147</td>
+<td>2147</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>2160</td>
+<td>2160</td>
+<td>2160</td>
+<td>2160</td>
+<td>2160</td>
+</tr>
+<tr class="even">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">gsm8k</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>1319</td>
+<td>1319</td>
+<td>1319</td>
+<td>1319</td>
+<td>1319</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">train</td>
+<td>3725</td>
+<td>3725</td>
+<td>3725</td>
+<td>3725</td>
+<td>3725</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>3748</td>
+<td>3748</td>
+<td>3748</td>
+<td>3748</td>
+<td>3748</td>
+</tr>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">humaneval</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>65</td>
+<td>65</td>
+<td>65</td>
+<td>65</td>
+<td>65</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">train</td>
+<td>51</td>
+<td>51</td>
+<td>51</td>
+<td>51</td>
+<td>51</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>48</td>
+<td>48</td>
+<td>48</td>
+<td>48</td>
+<td>48</td>
+</tr>
+<tr class="even">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">mmlu</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>13985</td>
+<td>13985</td>
+<td>13985</td>
+<td>13985</td>
+<td>13985</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">train</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>1474</td>
+<td>1474</td>
+<td>1474</td>
+<td>1474</td>
+<td>1474</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="subsampling" class="level2">
+<h2 class="anchored" data-anchor-id="subsampling">Subsampling</h2>
+<p>Too much data for such a small experiment, so I will limit it to subsample of original for some sets</p>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>SUBSAMPLE_RANDOM_STATE <span class="op">=</span> <span class="dv">42</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> subsample(df, dataset, split, keep_count, random_state):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    mask_other_datasets <span class="op">=</span> df[<span class="st">"dataset"</span>] <span class="op">!=</span> dataset</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    mask_same_dataset <span class="op">=</span> <span class="op">~</span>mask_other_datasets</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    mask_other_splits <span class="op">=</span> mask_same_dataset <span class="op">&amp;</span> (df[<span class="st">"split"</span>] <span class="op">!=</span> split)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    mask_same_split <span class="op">=</span> mask_same_dataset <span class="op">&amp;</span> (df[<span class="st">"split"</span>] <span class="op">==</span> split)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    mask_keep <span class="op">=</span> mask_other_datasets <span class="op">|</span> mask_other_splits</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    mask_remove <span class="op">=</span> mask_same_split</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    _, indices_keep <span class="op">=</span> train_test_split(</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">list</span>(df.loc[mask_remove].index),</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        stratify<span class="op">=</span><span class="bu">list</span>(df.loc[mask_remove, <span class="st">"subset"</span>]),</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        random_state<span class="op">=</span>random_state,</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>        test_size<span class="op">=</span>keep_count,</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    mask_remove[indices_keep] <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    mask_keep <span class="op">=</span> mask_keep <span class="op">|</span> (<span class="op">~</span>mask_remove)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df.loc[mask_keep]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> subsample(df, <span class="st">"gsm8k"</span>, <span class="st">"train"</span>, <span class="dv">100</span>, SUBSAMPLE_RANDOM_STATE)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> subsample(df, <span class="st">"gsm8k"</span>, <span class="st">"validation"</span>, <span class="dv">100</span>, SUBSAMPLE_RANDOM_STATE)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> subsample(df, <span class="st">"gsm8k"</span>, <span class="st">"test"</span>, <span class="dv">100</span>, SUBSAMPLE_RANDOM_STATE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> subsample(df, <span class="st">"bbh"</span>, <span class="st">"train"</span>, <span class="dv">100</span>, SUBSAMPLE_RANDOM_STATE)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> subsample(df, <span class="st">"bbh"</span>, <span class="st">"validation"</span>, <span class="dv">100</span>, SUBSAMPLE_RANDOM_STATE)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> subsample(df, <span class="st">"bbh"</span>, <span class="st">"test"</span>, <span class="dv">100</span>, SUBSAMPLE_RANDOM_STATE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> subsample(df, <span class="st">"mmlu"</span>, <span class="st">"test"</span>, <span class="dv">300</span>, SUBSAMPLE_RANDOM_STATE)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> subsample(df, <span class="st">"mmlu"</span>, <span class="st">"validation"</span>, <span class="dv">300</span>, SUBSAMPLE_RANDOM_STATE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df.groupby([<span class="st">"dataset"</span>, <span class="st">"split"</span>]).count()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">question</th>
+<th data-quarto-table-cell-role="th">variables</th>
+<th data-quarto-table-cell-role="th">target</th>
+<th data-quarto-table-cell-role="th">formatter</th>
+<th data-quarto-table-cell-role="th">subset</th>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">dataset</th>
+<th data-quarto-table-cell-role="th">split</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">bbh</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">train</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+</tr>
+<tr class="even">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">gsm8k</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">train</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+<td>100</td>
+</tr>
+<tr class="odd">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">humaneval</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>65</td>
+<td>65</td>
+<td>65</td>
+<td>65</td>
+<td>65</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">train</td>
+<td>51</td>
+<td>51</td>
+<td>51</td>
+<td>51</td>
+<td>51</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>48</td>
+<td>48</td>
+<td>48</td>
+<td>48</td>
+<td>48</td>
+</tr>
+<tr class="even">
+<td rowspan="3" data-quarto-table-cell-role="th" data-valign="top">mmlu</td>
+<td data-quarto-table-cell-role="th">test</td>
+<td>300</td>
+<td>300</td>
+<td>300</td>
+<td>300</td>
+<td>300</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">train</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+<td>228</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">validation</td>
+<td>300</td>
+<td>300</td>
+<td>300</td>
+<td>300</td>
+<td>300</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="saving-dataset-and-llm-prompt-templates" class="level2">
+<h2 class="anchored" data-anchor-id="saving-dataset-and-llm-prompt-templates">Saving dataset and LLM prompt templates</h2>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subset, index <span class="kw">in</span> df.groupby(<span class="st">"subset"</span>).<span class="bu">apply</span>(<span class="kw">lambda</span> df: df.sample(<span class="dv">1</span>, random_state<span class="op">=</span><span class="dv">42</span>).index[<span class="dv">0</span>]).to_dict().items():</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(subset)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(df.loc[index])</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">80</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>bbh-boolean_expressions
+question     False and not ( not not False ) is
+variables                                    {}
+target                                    False
+dataset                                     bbh
+formatter               bbh-boolean_expressions
+subset                  bbh-boolean_expressions
+split                                     train
+Name: 24705, dtype: object
+--------------------------------------------------------------------------------
+bbh-causal_judgement
+question     How would a typical person answer each of the ...
+variables                                                   {}
+target                                                      No
+dataset                                                    bbh
+formatter                                 bbh-causal_judgement
+subset                                    bbh-causal_judgement
+split                                               validation
+Name: 24801, dtype: object
+--------------------------------------------------------------------------------
+bbh-date_understanding
+question     Tomorrow is 11/12/2019. What is the date 10 da...
+variables                                                   {}
+target                                                     (B)
+dataset                                                    bbh
+formatter                               bbh-date_understanding
+subset                                  bbh-date_understanding
+split                                                     test
+Name: 25142, dtype: object
+--------------------------------------------------------------------------------
+bbh-disambiguation_qa
+question     In the following sentences, explain the antece...
+variables                                                   {}
+target                                                     (A)
+dataset                                                    bbh
+formatter                                bbh-disambiguation_qa
+subset                                   bbh-disambiguation_qa
+split                                               validation
+Name: 25219, dtype: object
+--------------------------------------------------------------------------------
+bbh-dyck_languages
+question     Complete the rest of the sequence, making sure...
+variables                                                   {}
+target                                                     ) }
+dataset                                                    bbh
+formatter                                   bbh-dyck_languages
+subset                                      bbh-dyck_languages
+split                                                    train
+Name: 25658, dtype: object
+--------------------------------------------------------------------------------
+bbh-formal_fallacies
+question     "Is Titanium oxide an ingredient of my washing...
+variables                                                   {}
+target                                                   valid
+dataset                                                    bbh
+formatter                                 bbh-formal_fallacies
+subset                                    bbh-formal_fallacies
+split                                                     test
+Name: 25852, dtype: object
+--------------------------------------------------------------------------------
+bbh-geometric_shapes
+question     This SVG path element &lt;path d="M 43.79,3.46 L ...
+variables                                                   {}
+target                                                     (J)
+dataset                                                    bbh
+formatter                                 bbh-geometric_shapes
+subset                                    bbh-geometric_shapes
+split                                               validation
+Name: 26008, dtype: object
+--------------------------------------------------------------------------------
+bbh-hyperbaton
+question     Which sentence has the correct adjective order...
+variables                                                   {}
+target                                                     (A)
+dataset                                                    bbh
+formatter                                       bbh-hyperbaton
+subset                                          bbh-hyperbaton
+split                                                    train
+Name: 26372, dtype: object
+--------------------------------------------------------------------------------
+bbh-logical_deduction_five_objects
+question     The following paragraphs each describe a set o...
+variables                                                   {}
+target                                                     (D)
+dataset                                                    bbh
+formatter                   bbh-logical_deduction_five_objects
+subset                      bbh-logical_deduction_five_objects
+split                                                    train
+Name: 26596, dtype: object
+--------------------------------------------------------------------------------
+bbh-logical_deduction_seven_objects
+question     The following paragraphs each describe a set o...
+variables                                                   {}
+target                                                     (E)
+dataset                                                    bbh
+formatter                  bbh-logical_deduction_seven_objects
+subset                     bbh-logical_deduction_seven_objects
+split                                               validation
+Name: 26806, dtype: object
+--------------------------------------------------------------------------------
+bbh-logical_deduction_three_objects
+question     The following paragraphs each describe a set o...
+variables                                                   {}
+target                                                     (A)
+dataset                                                    bbh
+formatter                  bbh-logical_deduction_three_objects
+subset                     bbh-logical_deduction_three_objects
+split                                               validation
+Name: 27063, dtype: object
+--------------------------------------------------------------------------------
+bbh-movie_recommendation
+question     Find a movie similar to American Beauty, Back ...
+variables                                                   {}
+target                                                     (D)
+dataset                                                    bbh
+formatter                             bbh-movie_recommendation
+subset                                bbh-movie_recommendation
+split                                                     test
+Name: 27279, dtype: object
+--------------------------------------------------------------------------------
+bbh-multistep_arithmetic_two
+question     ((8 + 1 + 6 + 6) - (7 - -7 - 9 - -8)) =
+variables                                         {}
+target                                             8
+dataset                                          bbh
+formatter               bbh-multistep_arithmetic_two
+subset                  bbh-multistep_arithmetic_two
+split                                          train
+Name: 27528, dtype: object
+--------------------------------------------------------------------------------
+bbh-navigate
+question     If you follow these instructions, do you retur...
+variables                                                   {}
+target                                                      No
+dataset                                                    bbh
+formatter                                         bbh-navigate
+subset                                            bbh-navigate
+split                                               validation
+Name: 27815, dtype: object
+--------------------------------------------------------------------------------
+bbh-object_counting
+question     I have a trumpet, a piano, a flute, a snake, t...
+variables                                                   {}
+target                                                      10
+dataset                                                    bbh
+formatter                                  bbh-object_counting
+subset                                     bbh-object_counting
+split                                               validation
+Name: 28072, dtype: object
+--------------------------------------------------------------------------------
+bbh-penguins_in_a_table
+question     Here is a table where the first line is a head...
+variables                                                   {}
+target                                                     (C)
+dataset                                                    bbh
+formatter                              bbh-penguins_in_a_table
+subset                                 bbh-penguins_in_a_table
+split                                               validation
+Name: 28194, dtype: object
+--------------------------------------------------------------------------------
+bbh-reasoning_about_colored_objects
+question     On the table, there is a black pen, a brown br...
+variables                                                   {}
+target                                                     (D)
+dataset                                                    bbh
+formatter                  bbh-reasoning_about_colored_objects
+subset                     bbh-reasoning_about_colored_objects
+split                                                    train
+Name: 28530, dtype: object
+--------------------------------------------------------------------------------
+bbh-ruin_names
+question     Which of the following is a humorous edit of t...
+variables                                                   {}
+target                                                     (D)
+dataset                                                    bbh
+formatter                                       bbh-ruin_names
+subset                                          bbh-ruin_names
+split                                               validation
+Name: 28722, dtype: object
+--------------------------------------------------------------------------------
+bbh-salient_translation_error_detection
+question     The following translations from German to Engl...
+variables                                                   {}
+target                                                     (F)
+dataset                                                    bbh
+formatter              bbh-salient_translation_error_detection
+subset                 bbh-salient_translation_error_detection
+split                                                    train
+Name: 29019, dtype: object
+--------------------------------------------------------------------------------
+bbh-snarks
+question     Which statement is sarcastic?\nOptions:\n(A) I...
+variables                                                   {}
+target                                                     (B)
+dataset                                                    bbh
+formatter                                           bbh-snarks
+subset                                              bbh-snarks
+split                                                    train
+Name: 29123, dtype: object
+--------------------------------------------------------------------------------
+bbh-sports_understanding
+question     Is the following sentence plausible? "Allen Ro...
+variables                                                   {}
+target                                                     yes
+dataset                                                    bbh
+formatter                             bbh-sports_understanding
+subset                                bbh-sports_understanding
+split                                               validation
+Name: 29466, dtype: object
+--------------------------------------------------------------------------------
+bbh-temporal_sequences
+question     Today, Ashley went to the orchestra hall. Betw...
+variables                                                   {}
+target                                                     (A)
+dataset                                                    bbh
+formatter                               bbh-temporal_sequences
+subset                                  bbh-temporal_sequences
+split                                                     test
+Name: 29727, dtype: object
+--------------------------------------------------------------------------------
+bbh-tracking_shuffled_objects_five_objects
+question     Alice, Bob, Claire, Dave, and Eve are on the s...
+variables                                                   {}
+target                                                     (E)
+dataset                                                    bbh
+formatter           bbh-tracking_shuffled_objects_five_objects
+subset              bbh-tracking_shuffled_objects_five_objects
+split                                                    train
+Name: 29860, dtype: object
+--------------------------------------------------------------------------------
+bbh-tracking_shuffled_objects_seven_objects
+question     Alice, Bob, Claire, Dave, Eve, Fred, and Gertr...
+variables                                                   {}
+target                                                     (C)
+dataset                                                    bbh
+formatter          bbh-tracking_shuffled_objects_seven_objects
+subset             bbh-tracking_shuffled_objects_seven_objects
+split                                               validation
+Name: 30198, dtype: object
+--------------------------------------------------------------------------------
+bbh-tracking_shuffled_objects_three_objects
+question     Alice, Bob, and Claire are friends and avid re...
+variables                                                   {}
+target                                                     (C)
+dataset                                                    bbh
+formatter          bbh-tracking_shuffled_objects_three_objects
+subset             bbh-tracking_shuffled_objects_three_objects
+split                                               validation
+Name: 30411, dtype: object
+--------------------------------------------------------------------------------
+bbh-web_of_lies
+question     Question: Shaunda tells the truth. Delbert say...
+variables                                                   {}
+target                                                      No
+dataset                                                    bbh
+formatter                                      bbh-web_of_lies
+subset                                         bbh-web_of_lies
+split                                               validation
+Name: 30697, dtype: object
+--------------------------------------------------------------------------------
+bbh-word_sorting
+question     Sort the following words alphabetically: List:...
+variables                                                   {}
+target                                           muddy nascent
+dataset                                                    bbh
+formatter                                     bbh-word_sorting
+subset                                        bbh-word_sorting
+split                                                    train
+Name: 30951, dtype: object
+--------------------------------------------------------------------------------
+gsm8k
+question     Raymond and Samantha are cousins. Raymond was ...
+variables    {"chain_of_thoughts": "When Raymond's son was ...
+target                                                      14
+dataset                                                  gsm8k
+formatter                                                gsm8k
+subset                                                   gsm8k
+split                                                     test
+Name: 23181, dtype: object
+--------------------------------------------------------------------------------
+main
+question     \ndef can_arrange(arr):\n    """Create a funct...
+variables    {"test": "def check(candidate):\n\n    # Check...
+target           ind=-1\n    i=1\n    while i&lt;len(arr):\n  ...
+dataset                                              humaneval
+formatter                                            humaneval
+subset                                                    main
+split                                                    train
+Name: 31125, dtype: object
+--------------------------------------------------------------------------------
+mmlu-abstract_algebra
+question     Statement 1 | Every element of a group generat...
+variables    {"A": "True, True", "B": "False, False", "C": ...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                   mmlu-abstract_algebra
+split                                                    train
+Name: 2408, dtype: object
+--------------------------------------------------------------------------------
+mmlu-anatomy
+question     Which one of the following is brought about by...
+variables    {"A": "Contraction of bronchial smooth muscle....
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                            mmlu-anatomy
+split                                               validation
+Name: 5654, dtype: object
+--------------------------------------------------------------------------------
+mmlu-astronomy
+question     What dangers are currently faced by each Mars ...
+variables    {"A": "Opportunity may not be able to drive ou...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                          mmlu-astronomy
+split                                               validation
+Name: 15516, dtype: object
+--------------------------------------------------------------------------------
+mmlu-business_ethics
+question     To ensure the independence of the non-executiv...
+variables    {"A": "Outside, Limited, Independently", "B": ...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                    mmlu-business_ethics
+split                                                    train
+Name: 186, dtype: object
+--------------------------------------------------------------------------------
+mmlu-clinical_knowledge
+question     What is the difference between a male and a fe...
+variables    {"A": "Male and female catheters are different...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                 mmlu-clinical_knowledge
+split                                                    train
+Name: 298, dtype: object
+--------------------------------------------------------------------------------
+mmlu-college_biology
+question     Which of the following traits do prokaryotes a...
+variables    {"A": "A single chromosome carries the entire ...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                    mmlu-college_biology
+split                                               validation
+Name: 15685, dtype: object
+--------------------------------------------------------------------------------
+mmlu-college_chemistry
+question     A 0.217 g sample of HgO (molar mass = 217 g) r...
+variables    {"A": "1.0 mL", "B": "10 mL", "C": "20 mL", "D...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                  mmlu-college_chemistry
+split                                                    train
+Name: 6216, dtype: object
+--------------------------------------------------------------------------------
+mmlu-college_computer_science
+question     The Singleton design pattern is used to guaran...
+variables    {"A": "I only", "B": "II only", "C": "III only...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                           mmlu-college_computer_science
+split                                                    train
+Name: 1951, dtype: object
+--------------------------------------------------------------------------------
+mmlu-college_mathematics
+question     Let A be a real 2x2 matrix. Which of the follo...
+variables    {"A": "I only", "B": "II only", "C": "III only...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                mmlu-college_mathematics
+split                                                    train
+Name: 7401, dtype: object
+--------------------------------------------------------------------------------
+mmlu-college_medicine
+question     Which of the following would be the most accur...
+variables    {"A": "An intrinsic desire to know the truth."...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                   mmlu-college_medicine
+split                                               validation
+Name: 5983, dtype: object
+--------------------------------------------------------------------------------
+mmlu-college_physics
+question     One end of a Nichrome wire of length 2L and cr...
+variables    {"A": "2.4 V", "B": "3.3 V", "C": "4.5 V", "D"...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                    mmlu-college_physics
+split                                                    train
+Name: 12496, dtype: object
+--------------------------------------------------------------------------------
+mmlu-computer_security
+question                              What is ethical hacking?
+variables    {"A": "\"Hacking\" ethics so they justify unin...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                  mmlu-computer_security
+split                                                    train
+Name: 13697, dtype: object
+--------------------------------------------------------------------------------
+mmlu-conceptual_physics
+question     A magnetic force can act on an electron even w...
+variables    {"A": "is at rest", "B": "moves parallel to ma...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                 mmlu-conceptual_physics
+split                                               validation
+Name: 9294, dtype: object
+--------------------------------------------------------------------------------
+mmlu-econometrics
+question     Suppose that a test statistic has associated w...
+variables    {"A": "(ii) and (iv) only", "B": "(i) and (iii...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                       mmlu-econometrics
+split                                                    train
+Name: 1823, dtype: object
+--------------------------------------------------------------------------------
+mmlu-electrical_engineering
+question     When checked with an ohm meter an open resisto...
+variables    {"A": "high but within tolerance.", "B": "low ...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                             mmlu-electrical_engineering
+split                                               validation
+Name: 15341, dtype: object
+--------------------------------------------------------------------------------
+mmlu-elementary_mathematics
+question     Olivia used the rule "Add 11" to create the nu...
+variables    {"A": "The 10th number in the pattern will be ...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                             mmlu-elementary_mathematics
+split                                                    train
+Name: 6731, dtype: object
+--------------------------------------------------------------------------------
+mmlu-formal_logic
+question      Use indirect truth tables to determine whethe...
+variables    {"A": "Inconsistent", "B": "Consistent. Consis...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                       mmlu-formal_logic
+split                                               validation
+Name: 8256, dtype: object
+--------------------------------------------------------------------------------
+mmlu-global_facts
+question     As of 2015, since 1990 forests have ____ in Eu...
+variables    {"A": "increased, increased", "B": "increased,...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                       mmlu-global_facts
+split                                                    train
+Name: 3829, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_biology
+question     A mutation in a bacterial enzyme changed a pre...
+variables    {"A": "By changing the enzyme\u2019s pH optimu...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                mmlu-high_school_biology
+split                                                    train
+Name: 2063, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_chemistry
+question     4NH3(g) + 5O2(g) → 4NO(g) + 6H2O(g) This react...
+variables    {"A": "The catalyst increases the overall freq...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                              mmlu-high_school_chemistry
+split                                               validation
+Name: 10408, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_computer_science
+question       What is the output of "abc"[::-1] in Python 3?
+variables    {"A": "Error", "B": "abc", "C": "cba", "D": "c"}
+target                                                      C
+dataset                                                  mmlu
+formatter                                                mmlu
+subset                      mmlu-high_school_computer_science
+split                                                   train
+Name: 8941, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_european_history
+question     This question refers to the following informat...
+variables    {"A": "Unify Italy with his brother as king", ...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                       mmlu-high_school_european_history
+split                                               validation
+Name: 172, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_geography
+question     Which of the following is NOT usually a possib...
+variables    {"A": "Educational opportunities", "B": "Envir...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                              mmlu-high_school_geography
+split                                               validation
+Name: 6718, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_government_and_politics
+question     Which of the following court decisions did NOT...
+variables    {"A": "Roe v. Wade", "B": "New York Times v. U...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                mmlu-high_school_government_and_politics
+split                                               validation
+Name: 6205, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_macroeconomics
+question              The short-run Phillips curve indicates a
+variables    {"A": "direct relation between unemployment an...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                         mmlu-high_school_macroeconomics
+split                                                    train
+Name: 13261, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_mathematics
+question     Five thousand dollars compounded annually at a...
+variables           {"A": "12", "B": "1", "C": "30", "D": "5"}
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                            mmlu-high_school_mathematics
+split                                                    train
+Name: 8639, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_microeconomics
+question     If, as the price of a particular good increase...
+variables    {"A": "Diminishing marginal productivity.", "B...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                         mmlu-high_school_microeconomics
+split                                               validation
+Name: 1799, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_physics
+question     An object initially at rest experiences a time...
+variables    {"A": "9 m", "B": "12 m", "C": "18 m", "D": "2...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                mmlu-high_school_physics
+split                                               validation
+Name: 1093, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_psychology
+question     Because Jake, the team's starting, star center...
+variables    {"A": "positive punishment.", "B": "negative r...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                             mmlu-high_school_psychology
+split                                                     test
+Name: 7812, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_statistics
+question     A skeptic decides to conduct an experiment in ...
+variables         {"A": "51", "B": "59", "C": "75", "D": "95"}
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                             mmlu-high_school_statistics
+split                                               validation
+Name: 8485, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_us_history
+question     This question refers to the following informat...
+variables    {"A": "The \"New Look\" foreign policy.", "B":...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                             mmlu-high_school_us_history
+split                                               validation
+Name: 927, dtype: object
+--------------------------------------------------------------------------------
+mmlu-high_school_world_history
+question     This question refers to the following informat...
+variables    {"A": "The militarism of early Mesopotamian po...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                          mmlu-high_school_world_history
+split                                               validation
+Name: 1347, dtype: object
+--------------------------------------------------------------------------------
+mmlu-human_aging
+question     The strongest research technique for determini...
+variables    {"A": "Siblings and parents", "B": "Identical ...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                        mmlu-human_aging
+split                                               validation
+Name: 7382, dtype: object
+--------------------------------------------------------------------------------
+mmlu-human_sexuality
+question     The feedback loop in women which regulates the...
+variables    {"A": "introitus", "B": "progesterone", "C": "...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                    mmlu-human_sexuality
+split                                               validation
+Name: 5801, dtype: object
+--------------------------------------------------------------------------------
+mmlu-international_law
+question     Can armed violence perpetrated by non-State ac...
+variables    {"A": "The conduct of non-State actors can nev...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                  mmlu-international_law
+split                                               validation
+Name: 8630, dtype: object
+--------------------------------------------------------------------------------
+mmlu-jurisprudence
+question     Which word best summarizes Weber's explanation...
+variables    {"A": "Authority.", "B": "Charisma.", "C": "Co...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                      mmlu-jurisprudence
+split                                                    train
+Name: 12611, dtype: object
+--------------------------------------------------------------------------------
+mmlu-logical_fallacies
+question     Evading burden of proof is another name for th...
+variables    {"A": "Extension", "B": "Appeal to ignorance",...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                  mmlu-logical_fallacies
+split                                                     test
+Name: 6399, dtype: object
+--------------------------------------------------------------------------------
+mmlu-machine_learning
+question     You are reviewing papers for the World’s Fanci...
+variables    {"A": "My method achieves a training error low...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                   mmlu-machine_learning
+split                                                    train
+Name: 3941, dtype: object
+--------------------------------------------------------------------------------
+mmlu-management
+question      Which element of the cultural web forms regalia?
+variables    {"A": "Symbols", "B": "Rituals and routines", ...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                         mmlu-management
+split                                                    train
+Name: 12380, dtype: object
+--------------------------------------------------------------------------------
+mmlu-marketing
+question     Which of the following terms best fits the act...
+variables    {"A": "Making products available.", "B": "Conv...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                          mmlu-marketing
+split                                               validation
+Name: 10652, dtype: object
+--------------------------------------------------------------------------------
+mmlu-medical_genetics
+question                            A gene showing codominance
+variables    {"A": "has both alleles independently expresse...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                   mmlu-medical_genetics
+split                                                    train
+Name: 595, dtype: object
+--------------------------------------------------------------------------------
+mmlu-miscellaneous
+question     What mathematical term is used to describe the...
+variables    {"A": "median", "B": "mode", "C": "majority", ...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                      mmlu-miscellaneous
+split                                               validation
+Name: 10154, dtype: object
+--------------------------------------------------------------------------------
+mmlu-moral_disputes
+question                    A fertilized ovum is also known as
+variables    {"A": "a zygote.", "B": "an embryo.", "C": "a ...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                     mmlu-moral_disputes
+split                                                    train
+Name: 14806, dtype: object
+--------------------------------------------------------------------------------
+mmlu-moral_scenarios
+question     For which of these two scenarios does the main...
+variables    {"A": "Wrong, Wrong", "B": "Wrong, Not wrong",...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                    mmlu-moral_scenarios
+split                                               validation
+Name: 14785, dtype: object
+--------------------------------------------------------------------------------
+mmlu-nutrition
+question     Which of the following statements is correct (...
+variables    {"A": "Consumers with phenylketonuria must avo...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                          mmlu-nutrition
+split                                                    train
+Name: 3487, dtype: object
+--------------------------------------------------------------------------------
+mmlu-philosophy
+question     According to Moore’s “ideal utilitarianism,” t...
+variables    {"A": "pleasure.", "B": "happiness.", "C": "go...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                         mmlu-philosophy
+split                                                    train
+Name: 2835, dtype: object
+--------------------------------------------------------------------------------
+mmlu-prehistory
+question     According to Timothy Pauketat, the evidence fo...
+variables    {"A": "a center of Mississippian civilization ...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                         mmlu-prehistory
+split                                                    train
+Name: 5146, dtype: object
+--------------------------------------------------------------------------------
+mmlu-professional_accounting
+question     One hundred years ago, your great-great-grandm...
+variables    {"A": "$13,000", "B": "$600", "C": "$15,000", ...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                            mmlu-professional_accounting
+split                                                    train
+Name: 2520, dtype: object
+--------------------------------------------------------------------------------
+mmlu-professional_law
+question     An inventor developed a prototype of an automo...
+variables    {"A": "the brother, because the rights of an a...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                   mmlu-professional_law
+split                                                     test
+Name: 11509, dtype: object
+--------------------------------------------------------------------------------
+mmlu-professional_medicine
+question     A 36-year-old male presents to the office with...
+variables    {"A": "left-on-left sacral torsion", "B": "lef...
+target                                                       D
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                              mmlu-professional_medicine
+split                                                    train
+Name: 3182, dtype: object
+--------------------------------------------------------------------------------
+mmlu-professional_psychology
+question     A motivational theory predicting thar an incre...
+variables    {"A": "goal-setting theory", "B": "need-achiev...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                            mmlu-professional_psychology
+split                                               validation
+Name: 5113, dtype: object
+--------------------------------------------------------------------------------
+mmlu-public_relations
+question     Which of these statements is true of the Vatic...
+variables    {"A": "There was a coordinated media response....
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                   mmlu-public_relations
+split                                                    train
+Name: 4340, dtype: object
+--------------------------------------------------------------------------------
+mmlu-security_studies
+question     What is the relationship between historical ma...
+variables    {"A": "As a philosophical approach, HM focuses...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                   mmlu-security_studies
+split                                               validation
+Name: 4319, dtype: object
+--------------------------------------------------------------------------------
+mmlu-sociology
+question     Wirth (1938) said that social relationships in...
+variables    {"A": "they were confined to particular areas ...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                          mmlu-sociology
+split                                               validation
+Name: 13131, dtype: object
+--------------------------------------------------------------------------------
+mmlu-us_foreign_policy
+question     The realm of policy decisions concerned primar...
+variables    {"A": "terrorism policy.", "B": "economic poli...
+target                                                       C
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                  mmlu-us_foreign_policy
+split                                                    train
+Name: 13149, dtype: object
+--------------------------------------------------------------------------------
+mmlu-virology
+question     In a survey of 10,000 IV drug users in town A,...
+variables    {"A": "1,000/10,000", "B": "1,100/10,000", "C"...
+target                                                       B
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                           mmlu-virology
+split                                               validation
+Name: 1543, dtype: object
+--------------------------------------------------------------------------------
+mmlu-world_religions
+question        Who was the immediate successor to Guru Nanak?
+variables    {"A": "Guru Angad", "B": "His son", "C": "Guru...
+target                                                       A
+dataset                                                   mmlu
+formatter                                                 mmlu
+subset                                    mmlu-world_religions
+split                                               validation
+Name: 12919, dtype: object
+--------------------------------------------------------------------------------</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>formatters <span class="op">=</span> {}</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-boolean_expressions"</span>] <span class="op">=</span> <span class="st">"USER: Calculate the following expression </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-boolean_expressions-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: Calculate the following expression </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-boolean_expressions-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-boolean_expressions"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-causal_judgement"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-causal_judgement-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-causal_judgement"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-causal_judgement-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-date_understanding"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-date_understanding-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-date_understanding"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-date_understanding-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-disambiguation_qa"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-disambiguation_qa-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-disambiguation_qa"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-disambiguation_qa-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-dyck_languages"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-dyck_languages-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-dyck_languages"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-dyck_languages-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-formal_fallacies"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-formal_fallacies-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-formal_fallacies"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-formal_fallacies-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt; "</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-geometric_shapes"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-geometric_shapes-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-geometric_shapes"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-geometric_shapes-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt; "</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-hyperbaton"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-hyperbaton-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-hyperbaton"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-hyperbaton-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_five_objects"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_five_objects-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-logical_deduction_five_objects"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_five_objects-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_seven_objects"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_seven_objects-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-logical_deduction_seven_objects"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_seven_objects-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_three_objects"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_three_objects-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-logical_deduction_three_objects"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-logical_deduction_three_objects-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-movie_recommendation"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-movie_recommendation-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-movie_recommendation"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-movie_recommendation-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-multistep_arithmetic_two"</span>] <span class="op">=</span> <span class="st">"USER: I have the following math expression, calculate it `</span><span class="sc">{question}</span><span class="st">`. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-multistep_arithmetic_two-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-multistep_arithmetic_two"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-multistep_arithmetic_two-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: I have the following math expression, calculate it `</span><span class="sc">{question}</span><span class="st">`. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-navigate"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-navigate-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-navigate"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-navigate-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-object_counting"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-object_counting-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-object_counting"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-object_counting-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-penguins_in_a_table"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-penguins_in_a_table-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-penguins_in_a_table"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-penguins_in_a_table-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-reasoning_about_colored_objects"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-reasoning_about_colored_objects-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-reasoning_about_colored_objects"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-reasoning_about_colored_objects-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-ruin_names"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-ruin_names-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-ruin_names"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-ruin_names-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-salient_translation_error_detection"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-salient_translation_error_detection-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-salient_translation_error_detection"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-salient_translation_error_detection-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-snarks"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-snarks-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-snarks"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-snarks-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-sports_understanding"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-63"><a href="#cb29-63" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-sports_understanding-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-sports_understanding"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-64"><a href="#cb29-64" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-sports_understanding-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-temporal_sequences"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-66"><a href="#cb29-66" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-temporal_sequences-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-temporal_sequences"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-67"><a href="#cb29-67" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-temporal_sequences-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-68"><a href="#cb29-68" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_five_objects"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-69"><a href="#cb29-69" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_five_objects-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-tracking_shuffled_objects_five_objects"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-70"><a href="#cb29-70" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_five_objects-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-71"><a href="#cb29-71" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_seven_objects"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-72"><a href="#cb29-72" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_seven_objects-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-tracking_shuffled_objects_seven_objects"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-73"><a href="#cb29-73" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_seven_objects-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-74"><a href="#cb29-74" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_three_objects"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-75"><a href="#cb29-75" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_three_objects-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-tracking_shuffled_objects_three_objects"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-76"><a href="#cb29-76" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-tracking_shuffled_objects_three_objects-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-77"><a href="#cb29-77" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-web_of_lies"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-78"><a href="#cb29-78" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-web_of_lies-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-web_of_lies"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-79"><a href="#cb29-79" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-web_of_lies-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-80"><a href="#cb29-80" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-word_sorting"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-81"><a href="#cb29-81" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-word_sorting-cot"</span>] <span class="op">=</span> formatters[<span class="st">"bbh-word_sorting"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-82"><a href="#cb29-82" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"bbh-word_sorting-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-83"><a href="#cb29-83" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"gsm8k"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. &lt;s&gt; ASSISTANT: Let's think step by step. </span><span class="sc">{chain_of_thoughts}</span><span class="st"> "</span></span>
+<span id="cb29-84"><a href="#cb29-84" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"gsm8k-cot"</span>] <span class="op">=</span> formatters[<span class="st">"gsm8k"</span>] <span class="op">+</span> <span class="st">" &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-85"><a href="#cb29-85" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"gsm8k-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="st">. Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt; "</span></span>
+<span id="cb29-86"><a href="#cb29-86" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"humaneval"</span>] <span class="op">=</span> <span class="st">"USER: We have the following code ```</span><span class="ch">\n</span><span class="sc">{question}</span><span class="ch">\n</span><span class="st">``` and tests ```</span><span class="sc">{test}</span><span class="st">```, help me write main code. &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-87"><a href="#cb29-87" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"humaneval-cot"</span>] <span class="op">=</span> formatters[<span class="st">"humaneval"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: ```</span><span class="ch">\n</span><span class="sc">{target}</span><span class="ch">\n</span><span class="st">``` &lt;s&gt;"</span></span>
+<span id="cb29-88"><a href="#cb29-88" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"humaneval-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: We have the following code ```</span><span class="ch">\n</span><span class="sc">{question}</span><span class="ch">\n</span><span class="st">``` and tests ```</span><span class="sc">{test}</span><span class="st">```, help me write main code. Give an immediate answer. &lt;s&gt; ASSISTANT: ```</span><span class="ch">\n</span><span class="sc">{target}</span><span class="ch">\n</span><span class="st">``` &lt;s&gt;"</span></span>
+<span id="cb29-89"><a href="#cb29-89" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"mmlu"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="ch">\n</span><span class="st">A: </span><span class="sc">{A}</span><span class="ch">\n</span><span class="st">B: </span><span class="sc">{B}</span><span class="ch">\n</span><span class="st">C: </span><span class="sc">{C}</span><span class="ch">\n</span><span class="st">D: </span><span class="sc">{D}</span><span class="st"> &lt;s&gt; ASSISTANT: Let's think step by step. "</span></span>
+<span id="cb29-90"><a href="#cb29-90" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"mmlu-cot"</span>] <span class="op">=</span> formatters[<span class="st">"mmlu"</span>] <span class="op">+</span> <span class="st">" </span><span class="sc">{chain_of_thoughts}</span><span class="st"> &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span>
+<span id="cb29-91"><a href="#cb29-91" aria-hidden="true" tabindex="-1"></a>formatters[<span class="st">"mmlu-no-cot"</span>] <span class="op">=</span> <span class="st">"USER: </span><span class="sc">{question}</span><span class="ch">\n</span><span class="st">A: </span><span class="sc">{A}</span><span class="ch">\n</span><span class="st">B: </span><span class="sc">{B}</span><span class="ch">\n</span><span class="st">C: </span><span class="sc">{C}</span><span class="ch">\n</span><span class="st">D: </span><span class="sc">{D}</span><span class="ch">\n</span><span class="st">Give an immediate answer. &lt;s&gt; ASSISTANT: </span><span class="sc">{target}</span><span class="st"> &lt;s&gt;"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> formatter <span class="kw">in</span> formatters:</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> formatter.endswith(<span class="st">"-cot"</span>):</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">continue</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="ss">f"</span><span class="sc">{</span>formatter<span class="sc">}</span><span class="ss">-cot"</span> <span class="kw">in</span> formatters, <span class="ss">f"No </span><span class="sc">{</span>formatter<span class="sc">}</span><span class="ss">-cot"</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> <span class="ss">f"</span><span class="sc">{</span>formatter<span class="sc">}</span><span class="ss">-no-cot"</span> <span class="kw">in</span> formatters, <span class="ss">f"No </span><span class="sc">{</span>formatter<span class="sc">}</span><span class="ss">-no-cot"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>pd.Series(formatters).reset_index().rename(columns<span class="op">=</span>{<span class="st">"index"</span>: <span class="st">"formatter"</span>, <span class="dv">0</span>: <span class="st">"text"</span>}).to_csv(<span class="st">"formatters.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">"llama-reasoning.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
